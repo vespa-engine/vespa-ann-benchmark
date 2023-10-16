@@ -18,7 +18,7 @@
 %define _prefix /opt/vespa
 %define _command_cmake cmake3
 
-Name:           vespa-ann-benchmark-testing
+Name:           vespa-ann-benchmark
 Version:        _VESPA_VERSION_
 Release:        1%{?dist}
 Summary:        Vespa - The open big data serving engine - ann-benchmark
