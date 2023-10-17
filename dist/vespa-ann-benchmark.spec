@@ -27,7 +27,7 @@ License:        Commercial
 URL:            http://vespa.ai
 Source0:        vespa-ann-benchmark-%{version}.tar.gz
 
-BuildRequires: vespa-build-dependencies = 1.0.1
+BuildRequires: vespa-build-dependencies = 1.2.0
 BuildRequires: vespa-devel = %{version}-%{release}
 %if 0%{?el8}
 %global _centos_stream %(grep -qs '^NAME="CentOS Stream"' /etc/os-release && echo 1 || echo 0)
