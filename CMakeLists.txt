@@ -1,4 +1,4 @@
-# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+# Copyright Vespa.ai. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
 cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
 
 list(PREPEND CMAKE_PREFIX_PATH "/opt/vespa" "/opt/vespa-deps")

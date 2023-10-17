@@ -1,0 +1,39 @@
+# Copyright Vespa.ai. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+---
+shared:
+  image: vespaengine/vespa-build-centos-stream8:latest
+  environment:
+    USER_SHELL_BIN: bash
+  annotations:
+    screwdriver.cd/restrictPR: fork
+
+jobs:
+  build:
+    requires: [~pr,~commit,~sd@6386:publish-release]
+    annotations:
+      screwdriver.cd/cpu: HIGH
+      screwdriver.cd/ram: HIGH
+      screwdriver.cd/timeout: 15
+      screwdriver.cd/dockerEnabled: true
+      screwdriver.cd/dockerCpu: HIGH
+      screwdriver.cd/dockerRam: HIGH
+    steps:
+      - inspect: |
+          set -x
+      - get-vespa-version: |
+          export VESPA_VERSION=$(meta get vespa.version --external sd@6386:publish-release)
+          echo "Building for version $VESPA_VERSION"
+      - install-dependencies: |
+          dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+          dnf -y install docker-ce docker-ce-cli containerd.io
+          docker system info
+      - build-rpm: |
+          make -f .copr/Makefile rpm outdir=$(pwd)
+      - build-container-image: |
+          docker build -t local-vespa-ann-benchmark .
+          git clone https://github.com/erikbern/ann-benchmarks
+          cd ann-benchmarks
+          sed -i -e 's,^FROM.*,FROM local-vespa-ann-benchmark,' ann_benchmarks/algorithms/vespa/Dockerfile
+          docker build -t ann-benchmark -f ann_benchmarks/algorithms/vespa/Dockerfile .
+      - test-container: |
+          echo "No tests. Please add."

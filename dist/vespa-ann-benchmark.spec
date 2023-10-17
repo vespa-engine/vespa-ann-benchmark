@@ -1,4 +1,4 @@
-# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+# Copyright Vespa.ai. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
 
 # Only strip debug info
 %global _find_debuginfo_opts -g
@@ -18,7 +18,7 @@
 %define _prefix /opt/vespa
 %define _command_cmake cmake3
 
-Name:           vespa-ann-benchmark-testing
+Name:           vespa-ann-benchmark
 Version:        _VESPA_VERSION_
 Release:        1%{?dist}
 Summary:        Vespa - The open big data serving engine - ann-benchmark
@@ -27,7 +27,7 @@ License:        Commercial
 URL:            http://vespa.ai
 Source0:        vespa-ann-benchmark-%{version}.tar.gz
 
-BuildRequires: vespa-build-dependencies = 1.0.1
+BuildRequires: vespa-build-dependencies = 1.2.0
 BuildRequires: vespa-devel = %{version}-%{release}
 %if 0%{?el8}
 %global _centos_stream %(grep -qs '^NAME="CentOS Stream"' /etc/os-release && echo 1 || echo 0)
