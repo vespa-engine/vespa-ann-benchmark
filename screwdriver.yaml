@@ -28,12 +28,13 @@ jobs:
           dnf -y install docker-ce docker-ce-cli containerd.io
           docker system info
       - build-rpm: |
+          git tag -a "v$VESPA_VERSION" -m "Version $VESPA_VERSION"
           make -f .copr/Makefile rpm outdir=$(pwd)
       - build-container-image: |
-          docker build -t local-vespa-ann-benchmark .
+          docker build --progress plain -t local-vespa-ann-benchmark .
           git clone https://github.com/erikbern/ann-benchmarks
           cd ann-benchmarks
           sed -i -e 's,^FROM.*,FROM local-vespa-ann-benchmark,' ann_benchmarks/algorithms/vespa/Dockerfile
-          docker build -t ann-benchmark -f ann_benchmarks/algorithms/vespa/Dockerfile .
+          docker build --progress plain -t ann-benchmark -f ann_benchmarks/algorithms/vespa/Dockerfile .
       - test-container: |
           echo "No tests. Please add."

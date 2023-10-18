@@ -1,18 +1,18 @@
 # Copyright Vespa.ai. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
 TOP = $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 
-# Version
-VESPA_VERSION ?= 8.241.13
-
 RPMTOPDIR=$(TOP)/rpmbuild
 SOURCEDIR=$(RPMTOPDIR)/SOURCES
 SPECDIR=$(RPMTOPDIR)/SPECS
 SPECFILE=$(SPECDIR)/vespa-ann-benchmark-$(VESPA_VERSION).spec
 
-srpm:
-	dnf install -y rpmdevtools git
+deps:
+	dnf install -y git rpmdevtools
+	git config --global --add safe.directory $$(realpath $(TOP)/..)
+
+srpm: VESPA_VERSION = $$(git tag --points-at HEAD | grep -oP "\d+\.\d+\.\d+" | sort -V | tail -1)
+srpm: deps
 	mkdir -p $(SPECDIR) $(SOURCEDIR)
-	#sed -e "s,_VESPA_VERSION_,$(VESPA_VERSION),g" dist/vespa-ann-benchmark.spec > $(SPECFILE)
 	./dist.sh $(VESPA_VERSION)
 	mv ~/rpmbuild/SOURCES/* $(SOURCEDIR)
 	mv ~/rpmbuild/SPECS/* $(SPECDIR)
