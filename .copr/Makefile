@@ -10,7 +10,7 @@ SPECDIR=$(RPMTOPDIR)/SPECS
 SPECFILE=$(SPECDIR)/vespa-ann-benchmark-$(VESPA_VERSION).spec
 
 srpm:
-	rpm -q rpmdevtools || dnf install -y rpmdevtools
+	dnf install -y rpmdevtools git
 	mkdir -p $(SPECDIR) $(SOURCEDIR)
 	#sed -e "s,_VESPA_VERSION_,$(VESPA_VERSION),g" dist/vespa-ann-benchmark.spec > $(SPECFILE)
 	./dist.sh $(VESPA_VERSION)
