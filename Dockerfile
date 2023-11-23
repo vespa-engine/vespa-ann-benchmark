@@ -2,7 +2,7 @@ FROM quay.io/centos/centos:stream8
 
 RUN dnf -y install epel-release && \
     dnf -y install dnf-plugins-core && \
-    dnf -y copr enable @vespa/vespa centos-stream-8 
+    dnf -y copr enable @vespa/vespa epel-8-$(arch)
 
 RUN --mount=type=bind,target=/include,source=.,ro \
     dnf -y module enable maven:3.8 && \

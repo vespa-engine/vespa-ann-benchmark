@@ -1,7 +1,7 @@
 # Copyright Vespa.ai. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
 ---
 shared:
-  image: vespaengine/vespa-build-centos-stream8:latest
+  image: vespaengine/vespa-build-almalinux-8:latest
   environment:
     USER_SHELL_BIN: bash
   annotations:
