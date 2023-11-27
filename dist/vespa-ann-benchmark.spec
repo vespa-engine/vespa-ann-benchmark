@@ -27,11 +27,11 @@ License:        Commercial
 URL:            http://vespa.ai
 Source0:        vespa-ann-benchmark-%{version}.tar.gz
 
-BuildRequires: vespa-build-dependencies = 1.2.2
+BuildRequires: vespa-build-dependencies >= 1.2.5
 BuildRequires: vespa-devel = %{version}-%{release}
 %if 0%{?el8}
 %global _centos_stream %(grep -qs '^NAME="CentOS Stream"' /etc/os-release && echo 1 || echo 0)
-%define _devtoolset_enable /opt/rh/gcc-toolset-12/enable
+%define _devtoolset_enable /opt/rh/gcc-toolset/enable
 
 %define _use_vespa_gtest 1
 %define _use_vespa_openblas 1
@@ -52,7 +52,7 @@ Requires: python39
 
 %if 0%{?el9}
 %global _centos_stream %(grep -qs '^NAME="CentOS Stream"' /etc/os-release && echo 1 || echo 0)
-%define _devtoolset_enable /opt/rh/gcc-toolset-12/enable
+%define _devtoolset_enable /opt/rh/gcc-toolset/enable
 %define _use_vespa_protobuf 1
 
 BuildRequires: pybind11-devel
