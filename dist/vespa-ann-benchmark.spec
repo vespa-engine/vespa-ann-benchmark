@@ -43,10 +43,10 @@ BuildRequires: vespa-devel = %{version}-%{release}
 %endif
 
 BuildRequires: vespa-pybind11-devel
-BuildRequires: python39-devel
-BuildRequires: python39-pip
+BuildRequires: python3.11-devel
+BuildRequires: python3.11-pip
 
-Requires: python39
+Requires: python3.11
 
 %endif
 
@@ -104,7 +104,7 @@ source %{_devtoolset_enable} || true
 
 %check
 %if 0%{?el8}
-python3.9 -m pip install --user pytest
+python3.11 -m pip install --user pytest
 %endif
 export PYTHONPATH="$PYTHONPATH:/usr/local/lib/$(basename $(readlink -f $(which python3)))/site-packages"
 make test ARGS="--output-on-failure %{_smp_mflags}"
