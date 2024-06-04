@@ -1,4 +1,4 @@
-FROM quay.io/centos/centos:stream8
+FROM almalinux:8
 
 RUN dnf -y install epel-release && \
     dnf -y install dnf-plugins-core && \
