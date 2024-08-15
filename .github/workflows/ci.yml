@@ -1,0 +1,138 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+  schedule:
+    - cron: "0 0 * * *"
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: vespaengine/vespa-build-almalinux-8:latest
+
+    steps:
+      - name: Setup tools
+        run: |
+          dnf config-manager --add-repo https://raw.githubusercontent.com/vespa-engine/vespa/master/dist/vespa-engine.repo
+
+          LATEST="$(curl -SsL https://api.github.com/repos/sibprogrammer/xq/releases/latest | jq -r '.tag_name')"
+          curl -sSL -o xq.tar.gz https://github.com/sibprogrammer/xq/releases/latest/download/xq_${LATEST//v/}_linux_amd64.tar.gz
+          tar -xzf xq.tar.gz
+          mv xq /usr/local/bin/xq
+
+      - name: Get Latest Vespa version
+        id: vespa-metadata
+        run: |
+          VESPA_VERSION=$(curl -sSL https://repo1.maven.org/maven2/com/yahoo/vespa/parent/maven-metadata.xml | \
+           xq -x '/metadata/versioning/latest')
+          echo "Using version: $VESPA_VERSION"
+          echo "version=$VESPA_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Configure Git
+        env:
+          VESPA_VERSION: ${{ steps.vespa-metadata.outputs.version }}
+        run: |
+          git config --global --add safe.directory "$(pwd)"
+          git config --global user.email "bot+actions@vespa.ai"
+          git config --global user.name "GitHub Actions"
+
+      - uses: actions/checkout@v4
+
+      - name: build-rpm
+        env:
+          VESPA_VERSION: ${{ steps.vespa-metadata.outputs.version }}
+        run: |
+          # git config --global --add safe.directory "$(pwd)"
+          # git config --global user.email "bot+actions@vespa.ai"
+          # git config --global user.name "GitHub Actions"
+
+          git tag -d "v$VESPA_VERSION" || true
+          git tag -a "v$VESPA_VERSION" -m "Version $VESPA_VERSION"
+
+          mkdir builds
+          make -f .copr/Makefile rpm outdir=$(pwd)/builds
+
+          git status
+          ls -lA builds
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vespa-rpm
+          path: builds
+          retention-days: 1
+
+  test:
+    runs-on: ubuntu-latest
+
+    needs:
+      - build
+
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
+
+    env:
+      BASE_IMAGE_TAG: "localhost:5000/almalinux-vespa"
+      ANNBENCH_IMAGE_TAG: "ann-benchmark"
+      ANNBENCH_REPO_ROOT: "${{ github.workspace }}/ann-benchmarks-repo"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: vespa-rpm
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          # network=host driver-opt needed to push to local registry
+          driver-opts: network=host
+
+      - name: Build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: "${{ env.BASE_IMAGE_TAG }}"
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - uses: actions/checkout@v4
+        with:
+          repository: erikbern/ann-benchmarks
+          path: ${{ env.ANNBENCH_REPO_ROOT }}
+
+      # - name: Update Dockerfile
+      #   run: |
+      #     sed -i'' -e 's,^FROM.*,FROM ${{ env.BASE_IMAGE_TAG }},' ${{ env.ANNBENCH_REPO_ROOT }}/ann_benchmarks/algorithms/vespa/Dockerfile
+
+      - name: Build
+        uses: docker/build-push-action@v6
+        with:
+          load: true
+          context: ${{ env.ANNBENCH_REPO_ROOT }}
+          file: ${{ env.ANNBENCH_REPO_ROOT }}/ann_benchmarks/algorithms/vespa/Dockerfile
+          tags: "${{ env.ANNBENCH_IMAGE_TAG }}"
+          # Replace almalinux with our local image
+          build-contexts: |
+            almalinux:8=docker-image://${{ env.BASE_IMAGE_TAG }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test
+        run: |
+          echo "No tests. Please add."
