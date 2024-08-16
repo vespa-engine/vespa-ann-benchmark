@@ -53,10 +53,6 @@ jobs:
         env:
           VESPA_VERSION: ${{ steps.vespa-metadata.outputs.version }}
         run: |
-          # git config --global --add safe.directory "$(pwd)"
-          # git config --global user.email "bot+actions@vespa.ai"
-          # git config --global user.name "GitHub Actions"
-
           git tag -d "v$VESPA_VERSION" || true
           git tag -a "v$VESPA_VERSION" -m "Version $VESPA_VERSION"
 
@@ -115,10 +111,6 @@ jobs:
         with:
           repository: erikbern/ann-benchmarks
           path: ${{ env.ANNBENCH_REPO_ROOT }}
-
-      # - name: Update Dockerfile
-      #   run: |
-      #     sed -i'' -e 's,^FROM.*,FROM ${{ env.BASE_IMAGE_TAG }},' ${{ env.ANNBENCH_REPO_ROOT }}/ann_benchmarks/algorithms/vespa/Dockerfile
 
       - name: Build
         uses: docker/build-push-action@v6
