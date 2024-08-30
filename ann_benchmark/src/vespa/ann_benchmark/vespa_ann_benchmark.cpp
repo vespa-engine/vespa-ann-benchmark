@@ -9,7 +9,6 @@
 #include <vespa/searchlib/tensor/nearest_neighbor_index.h>
 #include <vespa/searchcommon/attribute/config.h>
 #include <vespa/eval/eval/value.h>
-#include <vespa/vespalib/test/insertion_operators.h>
 #include <vespa/vespalib/util/fake_doom.h>
 #include <iostream>
 #include <sstream>
