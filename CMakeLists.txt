@@ -47,6 +47,7 @@ find_package(Python 3.6 COMPONENTS Interpreter Development REQUIRED)
 find_package(pybind11 CONFIG REQUIRED)
 
 include(${VESPA_CMAKECONFIG_DIR}/build_settings.cmake)
+include(${VESPA_CMAKECONFIG_DIR}/cxx_settings.cmake)
 
 # Enable CTest unit testing
 enable_testing()
