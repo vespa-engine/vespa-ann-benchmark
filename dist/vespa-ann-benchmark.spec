@@ -18,6 +18,13 @@
 %define _prefix /opt/vespa
 %define _command_cmake cmake3
 
+%if 0%{?el8} || 0%{?el9} || 0%{?amzn2023}
+%global _use_vespa_abseil_cpp 1
+%global _use_vespa_gtest 1
+%endif
+%global _use_vespa_protobuf 1
+%global _use_vespa_openblas 1
+
 Name:           vespa-ann-benchmark
 Version:        _VESPA_VERSION_
 Release:        1%{?dist}
@@ -32,10 +39,7 @@ BuildRequires: vespa-devel = %{version}-%{release}
 %global _centos_stream %(grep -qs '^NAME="CentOS Stream"' /etc/os-release && echo 1 || echo 0)
 %define _devtoolset_enable /opt/rh/gcc-toolset/enable
 
-%define _use_vespa_gtest 1
-%define _use_vespa_openblas 1
 %define _use_vespa_openssl 1
-%define _use_vespa_protobuf 1
 
 %if 0%{?centos} || 0%{?rocky} || 0%{?oraclelinux}
 %define _command_cmake cmake
@@ -52,7 +56,6 @@ Requires: python3.11
 %if 0%{?el9}
 %global _centos_stream %(grep -qs '^NAME="CentOS Stream"' /etc/os-release && echo 1 || echo 0)
 %define _devtoolset_enable /opt/rh/gcc-toolset/enable
-%define _use_vespa_protobuf 1
 
 BuildRequires: pybind11-devel
 BuildRequires: python3-pytest
@@ -80,7 +83,7 @@ Requires: vespa-libs = %{version}-%{release}
 # Ugly workaround because vespamalloc/src/vespamalloc/malloc/mmap.cpp uses the private
 # _dl_sym function.
 # Exclude automated requires for libraries in /opt/vespa-deps/lib64.
-%global __requires_exclude ^lib(c\\.so\\.6\\(GLIBC_PRIVATE\\)|pthread\\.so\\.0\\(GLIBC_PRIVATE\\)|(lz4%{?_use_vespa_protobuf:|protobuf}|zstd|onnxruntime%{?_use_vespa_openssl:|crypto|ssl}%{?_use_vespa_openblas:|openblas}%{?_use_vespa_re2:|re2}%{?_use_vespa_xxhash:|xxhash}%{?_use_vespa_gtest:|(gtest|gmock)(_main)?})\\.so\\.[0-9.]*\\([A-Za-z._0-9]*\\))\\(64bit\\)$
+%global __requires_exclude ^lib(c\\.so\\.6\\(GLIBC_PRIVATE\\)|pthread\\.so\\.0\\(GLIBC_PRIVATE\\)|(lz4%{?_use_vespa_protobuf:|protobuf}|zstd|onnxruntime%{?_use_vespa_openssl:|crypto|ssl}%{?_use_vespa_openblas:|openblas}%{?_use_vespa_re2:|re2}%{?_use_vespa_xxhash:|xxhash}%{?_use_vespa_gtest:|(gtest|gmock)(_main)?}%{?_use_vespa_abseil_cpp:|absl_[a-z_0-9]*})\\.so\\.[0-9.]*\\([A-Za-z._0-9]*\\))\\(64bit\\)$
 
 %description
 

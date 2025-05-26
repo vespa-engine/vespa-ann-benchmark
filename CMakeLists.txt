@@ -1,5 +1,5 @@
 # Copyright Vespa.ai. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
-cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 
 list(PREPEND CMAKE_PREFIX_PATH "/opt/vespa" "/opt/vespa-deps")
 
@@ -43,7 +43,18 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(CMAKE_THREAD_LIBS_INIT "-lpthread")
 endif()
 
-find_package(Python 3.6 COMPONENTS Interpreter Development REQUIRED)
+if (( ${VESPA_OS_DISTRO} STREQUAL "almalinux" OR
+      ${VESPA_OS_DISTRO} STREQUAL "centos" OR
+      ${VESPA_OS_DISTRO} STREQUAL "ol" OR
+      ${VESPA_OS_DISTRO} STREQUAL "rhel" OR
+      ${VESPA_OS_DISTRO} STREQUAL "rocky") AND
+    ( ${VESPA_OS_DISTRO_VERSION} VERSION_GREATER_EQUAL 8 AND
+      NOT (${VESPA_OS_DISTRO_VERSION} VERSION_GREATER_EQUAL 9)))
+  set(VESPA_PYTHON_VERSION_SPEC "3.11...<3.12")
+else()
+  set(VESPA_PYTHON_VERSION_SPEC "3.6")
+endif()
+find_package(Python ${VESPA_PYTHON_VERSION_SPEC} COMPONENTS Interpreter Development REQUIRED)
 find_package(pybind11 CONFIG REQUIRED)
 
 include(${VESPA_CMAKECONFIG_DIR}/build_settings.cmake)
