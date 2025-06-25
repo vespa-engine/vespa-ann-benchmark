@@ -16,7 +16,7 @@
 
 # Force special prefix for Vespa
 %define _prefix /opt/vespa
-%define _command_cmake cmake3
+%define _command_cmake cmake
 
 %if 0%{?el8} || 0%{?el9} || 0%{?amzn2023}
 %global _use_vespa_abseil_cpp 1
@@ -99,6 +99,9 @@ nearest neighbor search used for low-level benchmarking.
 %if 0%{?_devtoolset_enable:1}
 source %{_devtoolset_enable} || true
 %endif
+
+# Ensure we add Vespa's cmake in the PATH
+export PATH="%{_prefix}-deps/bin:$PATH"
 
 %{_command_cmake} -DCMAKE_INSTALL_PREFIX=%{_prefix} \
        -DVESPA_UNPRIVILEGED=no \
