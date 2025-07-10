@@ -68,6 +68,7 @@ class HnswIndex
     size_t                           _dim_size;
     bool                             _normalize_vectors;
     vespalib::FakeDoom               _no_doom;
+    double                           _exploration_slack;
 
     bool check_lid(uint32_t lid);
     bool check_value(const char *op, const std::vector<float>& value);
@@ -89,7 +90,8 @@ HnswIndex::HnswIndex(uint32_t dim_size, const HnswIndexParams &hnsw_index_params
       _nearest_neighbor_index(nullptr),
       _dim_size(0u),
       _normalize_vectors(normalize_vectors),
-      _no_doom()
+      _no_doom(),
+      _exploration_slack(0.0)
 {
     Config cfg(BasicType::TENSOR, CollectionType::SINGLE);
     _tensor_type = ValueType::from_spec(make_tensor_spec(dim_size));
@@ -210,7 +212,8 @@ HnswIndex::find_top_k(uint32_t k, const std::vector<float>& value, uint32_t expl
     std::vector<float> normalized_value;
     auto typed_cells = get_typed_cells(value, normalized_value);
     auto df = _nearest_neighbor_index->distance_function_factory().for_query_vector(typed_cells);
-    auto raw_result = _nearest_neighbor_index->find_top_k(k, *df, explore_k, _no_doom.get_doom(), std::numeric_limits<double>::max());
+    auto raw_result = _nearest_neighbor_index->find_top_k(k, *df, explore_k, _exploration_slack, _no_doom.get_doom(),
+                                                          std::numeric_limits<double>::max());
     result.reserve(raw_result.size());
     switch (_hnsw_index_params.distance_metric()) {
     case DistanceMetric::Euclidean:
