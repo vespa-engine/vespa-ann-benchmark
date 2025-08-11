@@ -47,7 +47,7 @@ jobs:
           git config --global user.email "bot+actions@vespa.ai"
           git config --global user.name "GitHub Actions"
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: build-rpm
         env:
@@ -86,7 +86,7 @@ jobs:
       ANNBENCH_REPO_ROOT: "${{ github.workspace }}/ann-benchmarks-repo"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: actions/download-artifact@v4
         with:
@@ -107,7 +107,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: erikbern/ann-benchmarks
           path: ${{ env.ANNBENCH_REPO_ROOT }}
