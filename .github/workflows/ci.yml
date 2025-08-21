@@ -121,7 +121,7 @@ jobs:
           tags: "${{ env.ANNBENCH_IMAGE_TAG }}"
           # Replace almalinux with our local image
           build-contexts: |
-            almalinux:8=docker-image://${{ env.BASE_IMAGE_TAG }}:latest
+            almalinux:9=docker-image://${{ env.BASE_IMAGE_TAG }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
