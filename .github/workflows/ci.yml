@@ -99,7 +99,7 @@ jobs:
           driver-opts: network=host
 
       - name: Build
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           push: true
@@ -113,7 +113,7 @@ jobs:
           path: ${{ env.ANNBENCH_REPO_ROOT }}
 
       - name: Build
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           load: true
           context: ${{ env.ANNBENCH_REPO_ROOT }}
