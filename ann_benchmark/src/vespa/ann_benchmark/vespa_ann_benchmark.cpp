@@ -9,7 +9,7 @@
 #include <vespa/searchlib/tensor/nearest_neighbor_index.h>
 #include <vespa/searchcommon/attribute/config.h>
 #include <vespa/eval/eval/value.h>
-#include <vespa/vespalib/util/fake_doom.h>
+#include <vespa/vespalib/util/fake_deadline.h>
 #include <iostream>
 #include <sstream>
 #include <limits>
@@ -67,7 +67,7 @@ class HnswIndex
     const NearestNeighborIndex*      _nearest_neighbor_index;
     size_t                           _dim_size;
     bool                             _normalize_vectors;
-    vespalib::FakeDoom               _no_doom;
+    vespalib::FakeDeadline           _no_deadline;
     double                           _exploration_slack;
     bool                             _prefetch_tensors;
 
@@ -91,7 +91,7 @@ HnswIndex::HnswIndex(uint32_t dim_size, const HnswIndexParams &hnsw_index_params
       _nearest_neighbor_index(nullptr),
       _dim_size(0u),
       _normalize_vectors(normalize_vectors),
-      _no_doom(),
+      _no_deadline(),
       _exploration_slack(0.0),
       _prefetch_tensors(false)
 {
@@ -216,7 +216,7 @@ HnswIndex::find_top_k(uint32_t k, const std::vector<float>& value, uint32_t expl
     auto df = _nearest_neighbor_index->distance_function_factory().for_query_vector(typed_cells);
     search::tensor::NearestNeighborIndex::Stats stats;
     auto raw_result = _nearest_neighbor_index->find_top_k(stats, k, *df, explore_k, _exploration_slack,
-                                                          _prefetch_tensors, _no_doom.get_doom(),
+                                                          _prefetch_tensors, _no_deadline.get_deadline(),
                                                           std::numeric_limits<double>::max());
     result.reserve(raw_result.size());
     switch (_hnsw_index_params.distance_metric()) {
