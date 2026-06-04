@@ -111,6 +111,7 @@ export PATH="%{_prefix}-deps/bin:$PATH"
 %if 0%{?el8}
 python3.11 -m pip install --user pytest
 %endif
+export LD_PRELOAD="%{_prefix}/lib64/libvespalib.so${LD_PRELOAD:+:${LD_PRELOAD}}"
 export PYTHONPATH="$PYTHONPATH:/usr/local/lib/$(basename $(readlink -f $(which python3)))/site-packages"
 make test ARGS="--output-on-failure %{_smp_mflags}"
 
