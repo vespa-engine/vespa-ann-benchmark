@@ -22,7 +22,7 @@ srpm: deps
 clean:
 	-rm -rf $(RPMTOPDIR)
 rpm: srpm
-	dnf builddep -y $(SPECFILE)
+	dnf builddep -y --allowerasing $(SPECFILE)
 	rpmbuild --rebuild $(outdir)/vespa-ann-benchmark-$(VESPA_VERSION)-*src.rpm
 	cp -a ~/rpmbuild/RPMS/*/*.rpm $(outdir)
 
