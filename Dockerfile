@@ -1,4 +1,4 @@
-FROM almalinux:10
+FROM almalinux:9
 
 RUN dnf -y install epel-release && \
     dnf -y install dnf-plugins-core && \
