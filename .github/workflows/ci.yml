@@ -26,15 +26,15 @@ jobs:
         run: |
           dnf config-manager --add-repo https://raw.githubusercontent.com/vespa-engine/vespa/master/dist/vespa-engine.repo
 
-          LATEST="$(curl -SsL https://api.github.com/repos/sibprogrammer/xq/releases/latest | jq -r '.tag_name')"
-          curl -sSL -o xq.tar.gz https://github.com/sibprogrammer/xq/releases/latest/download/xq_${LATEST//v/}_linux_amd64.tar.gz
+          LATEST="$(curl --fail --silent --show-error -L https://api.github.com/repos/sibprogrammer/xq/releases/latest | jq -r '.tag_name')"
+          curl --fail --silent --show-error -L -o xq.tar.gz https://github.com/sibprogrammer/xq/releases/latest/download/xq_${LATEST//v/}_linux_amd64.tar.gz
           tar -xzf xq.tar.gz
           mv xq /usr/local/bin/xq
 
       - name: Get Latest Vespa version
         id: vespa-metadata
         run: |
-          VESPA_VERSION=$(curl -sSL https://repo1.maven.org/maven2/com/yahoo/vespa/parent/maven-metadata.xml | \
+          VESPA_VERSION=$(curl --fail --silent --show-error -L https://repo1.maven.org/maven2/com/yahoo/vespa/parent/maven-metadata.xml | \
            xq -x '/metadata/versioning/latest')
           echo "Using version: $VESPA_VERSION"
           echo "version=$VESPA_VERSION" >> $GITHUB_OUTPUT
