@@ -11,10 +11,21 @@ list(APPEND CMAKE_MODULE_PATH
 )
 message("-- CMAKE_MODULE_PATH is ${CMAKE_MODULE_PATH}")
 SET_PROPERTY(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS TRUE)
-find_package(vespa 8.0 REQUIRED)
-message("VESPA_CMAKECONFIG_DIR is ${VESPA_CMAKECONFIG_DIR}")
-include(${VESPA_CMAKECONFIG_DIR}/functions.cmake)
-include(${VESPA_CMAKECONFIG_DIR}/default_build_settings.cmake)
+# Manual scan to find functions.cmake and default_build_settings.cmake
+# as part of vespa cmake files.
+foreach(IDIR IN LISTS CMAKE_MODULE_PATH)
+    if(EXISTS "${IDIR}/vespa/vespaConfig.cmake" AND
+            EXISTS "${IDIR}/vespa/functions.cmake" AND
+            EXISTS "${IDIR}/vespa/default_build_settings.cmake")
+        set(VESPA_CMAKECONFIG_INITIAL_DIR "${IDIR}/vespa")
+        break()
+    endif()
+endforeach()
+if(NOT DEFINED VESPA_CMAKECONFIG_INITIAL_DIR)
+    message(FATAL_ERROR "-- Could not determine vespa cmake config dir")
+endif()
+include(${VESPA_CMAKECONFIG_INITIAL_DIR}/functions.cmake)
+include(${VESPA_CMAKECONFIG_INITIAL_DIR}/default_build_settings.cmake)
 vespa_detect_build_platform()
 message("-- Vespa build platform is ${VESPA_OS_DISTRO} ${VESPA_OS_DISTRO_VERSION}")
 vespa_use_default_cxx_compiler()
@@ -29,7 +40,16 @@ vespa_use_default_cmake_prefix_path()
 SET(CMAKE_FIND_PACKAGE_SORT_ORDER NATURAL)
 SET(CMAKE_FIND_PACKAGE_SORT_DIRECTION DEC)
 
-find_package(Threads REQUIRED)
+find_package(vespa 8.0 CONFIG REQUIRED)
+message("VESPA_CMAKECONFIG_DIR is ${VESPA_CMAKECONFIG_DIR}")
+if(TARGET vespa::vespa_searchlib)
+    set(VESPA_SEARCHLIB_TARGET "vespa::vespa_searchlib")
+elseif(TARGET vespa_searchlib)
+    set(VESPA_SEARCHLIB_TARGET "vespa_searchlib")
+else()
+    message(FATAL_ERROR "-- vespa searchlib target not found")
+endif()
+message(STATUS "vespa searchlib target is ${VESPA_SEARCHLIB_TARGET}")
 
 vespa_use_default_build_settings()
 
