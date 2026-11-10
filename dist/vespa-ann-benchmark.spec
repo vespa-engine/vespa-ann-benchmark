@@ -18,12 +18,29 @@
 %define _prefix /opt/vespa
 %define _command_cmake cmake
 
-%if 0%{?el8} || 0%{?el9} || 0%{?amzn2023}
-%global _use_vespa_abseil_cpp 1
-%global _use_vespa_gtest 1
+# Generated dependencies must be filtered the same way as for vespa.
+%global _vespa_abseil_excludes |absl_[a-z_0-9]*
+%global _vespa_gtest_excludes |(gtest|gmock)(_main)?
+%global _vespa_re2_excludes |re2
+%global _vespa_protobuf_excludes |protobuf|utf8_validity|utf8_range
+%global _vespa_openblas_excludes |openblas
+%global _vespa_grpc_excludes1 address_sorting|gpr
+%global _vespa_grpc_excludes2 grpc\\+\\+(_(alts|error_details|reflection|unsecure))?
+%global _vespa_grpc_excludes3 grpc(_(authorization_provider|plugin_support|unsecure))?
+%global _vespa_grpc_excludes4 grpcpp_channelz
+%global _vespa_grpc_excludes5 (upb_.*|utf8_(range|validity))_lib
+%global _vespa_grpc_excludes |%{_vespa_grpc_excludes1}|%{_vespa_grpc_excludes2}|%{_vespa_grpc_excludes3}|%{_vespa_grpc_excludes4}|%{_vespa_grpc_excludes5}
+%global _vespa_opentelemetry_excludes |opentelemetry_[a-z_0-9]*
+
+
+%if 0%{?el8} || 0%{?el9} || 0%{?el10}
+%global _vespa_icu_excludes |icu(data|i18n|io|test|tu|uc)
+%global _vespa_openssl_excludes |crypto|ssl
 %endif
-%global _use_vespa_protobuf 1
-%global _use_vespa_openblas 1
+
+%if 0%{?amzn2023}
+%global _vespa_xxhash_excludes |xxhash
+%endif
 
 Name:           vespa-ann-benchmark
 Version:        _VESPA_VERSION_
@@ -38,8 +55,6 @@ BuildRequires: vespa-devel = %{version}-%{release}
 %if 0%{?el8}
 %global _centos_stream %(grep -qs '^NAME="CentOS Stream"' /etc/os-release && echo 1 || echo 0)
 %define _devtoolset_enable /opt/rh/gcc-toolset/enable
-
-%define _use_vespa_openssl 1
 
 %if 0%{?centos} || 0%{?rocky} || 0%{?oraclelinux}
 %define _command_cmake cmake
@@ -70,20 +85,18 @@ BuildRequires: python3-devel
 Requires: python3
 %endif
 
-# For Amazon Linux 2023 fedora is also defined
-%if 0%{?amzn2023}
-%define _java_home /usr/lib/jvm/java-17-amazon-corretto
-%define _use_vespa_re2 1
-%define _use_vespa_xxhash 1
-%endif
-
 Requires: vespa-base-libs = %{version}-%{release}
 Requires: vespa-libs = %{version}-%{release}
 
 # Ugly workaround because vespamalloc/src/vespamalloc/malloc/mmap.cpp uses the private
 # _dl_sym function.
 # Exclude automated requires for libraries in /opt/vespa-deps/lib64.
-%global __requires_exclude ^lib(c\\.so\\.6\\(GLIBC_PRIVATE\\)|pthread\\.so\\.0\\(GLIBC_PRIVATE\\)|(lz4%{?_use_vespa_protobuf:|protobuf}|zstd|onnxruntime%{?_use_vespa_openssl:|crypto|ssl}%{?_use_vespa_openblas:|openblas}%{?_use_vespa_re2:|re2}%{?_use_vespa_xxhash:|xxhash}%{?_use_vespa_gtest:|(gtest|gmock)(_main)?}%{?_use_vespa_abseil_cpp:|absl_[a-z_0-9]*})\\.so\\.[0-9.]*\\([A-Za-z._0-9]*\\))\\(64bit\\)$
+%define _excludes1 %{?_vespa_abseil_excludes}%{?_vespa_gtest_excludes}%{?_vespa_protobuf_excludes}
+%define _excludes2 %{?_vespa_openblas_excludes}%{?_vespa_icu_excludes}%{?_vespa_re2_excludes}
+%define _excludes3 %{?_vespa_openssl_excludes}%{?_vespa_xxhash_excludes}
+%define _excludes4 %{?_vespa_grpc_excludes}%{?_vespa_opentelemetry_excludes}
+%define _vespa_excludes %{?_excludes1}%{?_excludes2}%{?_excludes3}%{?_excludes4}
+%global __requires_exclude ^lib(c\\.so\\.6\\(GLIBC_PRIVATE\\)|pthread\\.so\\.0\\(GLIBC_PRIVATE\\)|(lz4|zstd|onnxruntime|hwy|hwy_contrib|mimalloc%{?_vespa_excludes})\\.so\\.[0-9.]*\\([A-Za-z._0-9]*\\))\\(64bit\\)$
 
 %description
 
